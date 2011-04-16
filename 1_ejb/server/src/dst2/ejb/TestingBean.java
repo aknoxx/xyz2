@@ -23,20 +23,7 @@ public class TestingBean implements Testing {
 	@Override
 	public void insertData() {		
 		
-		PriceStep ps = new PriceStep(1, new BigDecimal(1));
-		em.persist(ps);
-		
-		/*EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("dst");
-		EntityManager em = entityManagerFactory.createEntityManager();
-		
-		em.getTransaction().begin();
-		
-		em.getTransaction().commit();
-		
-		em.close();        
-        entityManagerFactory.close();   */  
-		
-		/*Grid grid1 = new Grid("grid1", "location1", new BigDecimal(1));
+		Grid grid1 = new Grid("grid1", "location1", new BigDecimal(1));
 		Grid grid2 = new Grid("grid2", "location2", new BigDecimal(2));	
 		em.persist(grid1);
 		em.persist(grid2);
@@ -72,18 +59,22 @@ public class TestingBean implements Testing {
 		grid2.getClusters().add(cluster2);
 		em.merge(grid2);		
 		
-		/*for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 5; i++) {
 			Computer computer = new Computer("name"+i+1, i+1, "location"+i+1, new Date(), new Date());
 			computer.setCluster(cluster1);
+			cluster1.getComputers().add(computer);
 			em.persist(computer);
 		}
+		em.merge(cluster1);
 		
 		for (int i = 5; i < 10; i++) {
 			Computer computer = new Computer("name"+i+1, i+1, "location"+i+1, new Date(), new Date());
 			computer.setCluster(cluster2);
+			cluster2.getComputers().add(computer);
 			em.persist(computer);
-		}*/
-		/*
+		}
+		em.merge(cluster2);
+		
 		List<String> params = new ArrayList<String>();
 		params.add("param1");
 		params.add("param2");
@@ -110,7 +101,7 @@ public class TestingBean implements Testing {
 		em.persist(execution);
 		em.persist(job);		
 		em.merge(user1);
-		*/
+
         System.out.println("All fine");
 	}
 	
