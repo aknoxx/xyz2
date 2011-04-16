@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="dst2" default="compile" basedir=".">
+
+	<property environment="env" />
+	<property name="glassfish.home" value="${env.GLASSFISH_HOME}" />
+	<property name="domain.dir" value="${glassfish.home}/domains/domain1" />
+	<property name="admin.cli.jar" value="${glassfish.home}/modules/admin-cli.jar" />
+
+	<property name="lib.dir" value="lib" />
+	<property name="setup.dir" value="setup" />
+	<property name="datasourceFile.name" value="dst-ds.xml" />
+
+	<property name="ejb.dir" value="1_ejb" />
+	<property name="ejb.server.buildFile" value="${ejb.dir}/server/build.xml" />
+	<property name="ejb.client.buildFile" value="${ejb.dir}/client/build.xml" />
+
+	<property name="messaging.dir" value="2_messaging" />
+	<property name="messaging.server.buildFile" value="${messaging.dir}/server/build.xml" />
+	<property name="messaging.scheduler.buildFile" value="${messaging.dir}/scheduler/build.xml" />
+	<property name="messaging.computer.buildFile" value="${messaging.dir}/computer/build.xml" />
+	<property name="messaging.cluster.buildFile" value="${messaging.dir}/cluster/build.xml" />
+
+	<property name="zip.name" value="dst2_submission.zip" />
+
+	<target name="check">
+		<fail unless="env.GLASSFISH_HOME">
+            #### You must install GlassFish V3 and set the GLASSFISH_HOME variable
+        </fail>
+	</target>
+
+	<target name="setup" depends="check">
+		<copy file="${lib.dir}/mysql-connector-java-5.1.11-bin.jar" todir="${domain.dir}/lib/ext" />
+		<java jar="${admin.cli.jar}" fork="true" spawn="false">
+			<arg line="add-resources ${setup.dir}/${datasourceFile.name}" />
+		</java>
+		<ant antfile="${messaging.server.buildFile}" inheritAll="false" target="setup" />
+	</target>
+
+	<!-- create the zip file: -->
+	<target name="zip" depends="clean">
+		<delete file="${zip.name}" />
+		<zip destfile="${zip.name}">
+			<fileset dir="${basedir}" />
+		</zip>
+	</target>
+
+	<!-- build projects: -->
+	<target name="build" depends="build-ejb-projects,build-messaging-projects" />
+
+	<target name="build-ejb-projects">
+		<ant antfile="${ejb.server.buildFile}" inheritAll="false" target="dist" />
+		<ant antfile="${ejb.client.buildFile}" inheritAll="false" target="compile" />
+	</target>
+
+	<target name="build-messaging-projects">
+		<ant antfile="${messaging.server.buildFile}" inheritAll="false" target="dist" />
+		<ant antfile="${messaging.scheduler.buildFile}" inheritAll="false" target="compile" />
+		<ant antfile="${messaging.computer.buildFile}" inheritAll="false" target="compile" />
+		<ant antfile="${messaging.computer.buildFile}" inheritAll="false" target="compile" />
+	</target>
+
+	<!-- deployment -->
+	<target name="deploy-ejb" depends="build-ejb-projects">
+		<ant antfile="${ejb.server.buildFile}" inheritAll="false" target="deploy" />
+	</target>
+	<target name="undeploy-ejb">
+		<ant antfile="${ejb.server.buildFile}" inheritAll="false" target="undeploy" />
+	</target>
+	<target name="redeploy-ejb" depends="undeploy-ejb,deploy-ejb" />
+
+	<target name="deploy-messaging" depends="build-messaging-projects">
+		<ant antfile="${messaging.server.buildFile}" inheritAll="false" target="deploy" />
+	</target>
+	<target name="undeploy-messaging">
+		<ant antfile="${messaging.server.buildFile}" inheritAll="false" target="undeploy" />
+	</target>
+	<target name="redeploy-messaging" depends="undeploy-messaging,deploy-messaging" />
+
+	<!-- running applications -->
+	<target name="run-ejb-client" depends="build-ejb-projects">
+		<ant antfile="${ejb.client.buildFile}" inheritAll="false" target="run" />
+	</target>
+
+	<target name="run-scheduler" depends="build-messaging-projects">
+		<ant antfile="${messaging.scheduler.buildFile}" inheritAll="false" target="run" />
+	</target>
+
+	<target name="run-c1" depends="build-messaging-projects">
+		<ant antfile="${messaging.cluster.buildFile}" inheritAll="false" target="run-c1" />
+	</target>
+
+	<target name="run-c2" depends="build-messaging-projects">
+		<ant antfile="${messaging.cluster.buildFile}" inheritAll="false" target="run-c2" />
+	</target>
+
+	<target name="run-pc1" depends="build-messaging-projects">
+		<ant antfile="${messaging.computer.buildFile}" inheritAll="false" target="run-pc1" />
+	</target>
+
+	<target name="run-pc2" depends="build-messaging-projects">
+		<ant antfile="${messaging.computer.buildFile}" inheritAll="false" target="run-pc2" />
+	</target>
+
+	<target name="run-pc3" depends="build-messaging-projects">
+		<ant antfile="${messaging.computer.buildFile}" inheritAll="false" target="run-pc3" />
+	</target>
+
+	<target name="run-pc4" depends="build-messaging-projects">
+		<ant antfile="${messaging.computer.buildFile}" inheritAll="false" target="run-pc4" />
+	</target>
+
+	<!-- clean build artifacts: -->
+	<target name="clean">
+		<ant antfile="${ejb.server.buildFile}" inheritAll="false" target="clean" />
+		<ant antfile="${ejb.client.buildFile}" inheritAll="false" target="clean" />
+
+		<ant antfile="${messaging.server.buildFile}" inheritAll="false" target="clean" />
+		<ant antfile="${messaging.scheduler.buildFile}" inheritAll="false" target="clean" />
+		<ant antfile="${messaging.cluster.buildFile}" inheritAll="false" target="clean" />
+		<ant antfile="${messaging.computer.buildFile}" inheritAll="false" target="clean" />
+		<java jar="${admin.cli.jar}" fork="true" spawn="false">
+			<arg line="delete-jdbc-connection-pool --cascade=true dst_pool" />
+		</java>
+	</target>
+
+	<target name="compile" />
+
+</project>

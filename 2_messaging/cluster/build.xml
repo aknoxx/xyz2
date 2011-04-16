@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="dst2_2_Cluster" default="compile" basedir=".">
+
+	<property environment="env" />
+	<property name="glassfish.home" value="${env.GLASSFISH_HOME}" />
+
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="build" />
+	<property name="lib.dir" value="../../lib" />
+	<property name="clientJarfile.name" value="dst2_2_client.jar" />
+
+	<path id="classpath">
+		<fileset dir="${glassfish.home}/lib">
+			<include name="javaee.jar" />
+			<include name="appserv-rt.jar" />
+		</fileset>
+		<fileset dir="${lib.dir}">
+			<include name="${clientJarfile.name}" />
+		</fileset>
+		<pathelement location="${build.dir}" />
+	</path>
+
+	<target name="check">
+		<fail unless="env.GLASSFISH_HOME">
+            #### You must install GlassFish V3 and set the GLASSFISH_HOME variable
+        </fail>
+	</target>
+
+	<target name="compile" depends="check">
+		<mkdir dir="${build.dir}" />
+		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="on" deprecation="on" classpathref="classpath" />
+	</target>
+
+	<!-- set your main class -->
+	<target name="run-c1" depends="compile">
+		<java classname="your.main.class" fork="true" classpathref="classpath">
+			<arg value="c1" />
+		</java>
+	</target>
+
+	<!-- set your main class -->
+	<target name="run-c2" depends="compile">
+		<java classname="your.main.class" fork="true" classpathref="classpath">
+			<arg value="c2" />
+		</java>
+	</target>
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+	</target>
+
+</project>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE resources PUBLIC "-//Sun Microsystems, Inc.//DTD Application Server 9.0 Resource Definitions //EN" "http://www.sun.com/software/appserver/dtds/sun-resources_1_3.dtd">
+<resources>
+    <jdbc-resource jndi-name="dst_ds" pool-name="dst_pool"/>
+    <jdbc-connection-pool name="dst_pool" datasource-classname="com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource">
+        <property name="databaseName" value="dst"/>
+        <property name="serverName" value="localhost"/>
+        <property name="portNumber" value="3306"/>
+        <property name="User" value="root"/>
+        <property name="Password" value=""/>
+        <property name="URL" value="jdbc:mysql://localhost:3306/dst"/>
+        <property name="driverClass" value="com.mysql.jdbc.Driver"/>
+    </jdbc-connection-pool>
+</resources>

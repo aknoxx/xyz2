@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="dist/dst2_1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/home/markus/opt/glassfish3/glassfish/lib/javaee.jar"/>
+	<classpathentry kind="lib" path="/home/markus/dst2_0726649/lib/mysql-connector-java-5.1.11-bin.jar"/>
+	<classpathentry kind="output" path="build"/>
+</classpath>
