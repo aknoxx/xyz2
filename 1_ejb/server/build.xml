@@ -46,6 +46,14 @@
                 <!-- set the classes to be included for your client.-->
             	<include name="dst2/ejb/Testing.class"/>
                 <include name="dst2/ejb/TestingBean.class"/>
+            	<include name="dst2/ejb/GeneralManagement.class"/>
+            	<include name="dst2/ejb/GeneralManagementBean.class"/>
+            	<include name="dst2/ejb/JobManagement.class"/>
+            	<include name="dst2/ejb/JobManagementBean.class"/>
+            	
+            	<include name="dst2/ejb/util/ComputersNotAvailableException.class"/>
+            	<include name="dst2/ejb/util/InvalidGridIdException.class"/>
+            	<include name="dst2/ejb/util/UserNotLoggedInException.class"/>
             </fileset>
         </jar>
     </target>
