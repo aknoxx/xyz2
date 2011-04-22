@@ -9,7 +9,7 @@ import javax.ejb.Stateless;
 public class GeneralManagementBean implements GeneralManagement {
 
 	@EJB
-	PriceManagementBean pmb;
+	PriceManagementLocal pmb;
 	
 	@Override
 	public void setFeeForNumberOfHistoricalJobs(int numberOfHistoricalJobs,

@@ -26,7 +26,7 @@ import dst2.ejb.util.NoPriceStepException;
 @Startup // "eager initialization"
 @Singleton
 @ConcurrencyManagement(CONTAINER)
-public class PriceManagementBean {
+public class PriceManagementBean implements PriceManagementLocal {
 
 	@PersistenceContext
 	private EntityManager em;
