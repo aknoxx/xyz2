@@ -18,7 +18,7 @@ public class Job implements Serializable {
 
     private boolean isPaid;
     
-    @OneToOne(cascade=CascadeType.REMOVE, optional = false)
+    @OneToOne(cascade={CascadeType.REMOVE}, optional = false)
     private Execution execution;
 
     @OneToOne(cascade=CascadeType.REMOVE, optional = false)

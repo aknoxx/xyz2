@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 import javax.ejb.Remove;
@@ -28,11 +30,13 @@ public class JobManagementBean implements JobManagement {
 	//private EntityManagerFactory emf;
 	private EntityManager em;
 	
-	@Resource
-	UserTransaction utx;
+	//@Resource
+	//UserTransaction utx;
 	
 	private List<GridJobs> temporary_jobs = new ArrayList<GridJobs>();
 	private User user;
+	
+	private static Logger log = Logger.getLogger("MyLog");
 
 	@Override
 	public boolean login(String username, String password) {
@@ -73,27 +77,38 @@ public class JobManagementBean implements JobManagement {
 			throw new InvalidGridIdException("Invalid grid id.");
 		}
 		
-		if(getFreeCPUsOfGrid(gridId) >= numCPUs) {
+		int freeCPUs = getFreeCPUsOfGrid(gridId);
+		if(freeCPUs >= numCPUs) {
+			
+			log.log(Level.INFO, "Enough CPUs: " + freeCPUs + " >= " + numCPUs);
+			
+			Execution execution = new Execution();
+			
 			Job job = new Job(false, 
 					new Environment(workflow, params),
-					new Execution(),
-					user);
-			GridJobs gridJobs = new GridJobs(grid);
-			gridJobs.getJobs().add(job);
-			temporary_jobs.add(gridJobs);
+					null,
+					null);			
+			
+			GridJobs gridJobs = new GridJobs(gridId);
+			gridJobs.setJob(job);
 			
 			// assign free computers at random
 			int assignedCPUs = 0;
-			List<Computer> freeComputers = getFreeComputers();
+			List<Computer> freeComputers = getFreeComputersByGrid(gridId);
+			log.log(Level.INFO, "Found " + freeComputers.size() + " free Computers.");
 			for (Computer computer : freeComputers) {
-				job.getExecution().getComputers().add(computer);
+				gridJobs.getComputers().add(computer);
+				
+				//execution.getComputers().add(c);
 				// TODO check?!
-				computer.getExecutions().add(job.getExecution());
+				//c.getExecutions().add(job.getExecution());
 				assignedCPUs += computer.getCpus();
 				if(assignedCPUs >= numCPUs) {
-					return;
+					break;
 				}
-			}
+			}	
+			
+			temporary_jobs.add(gridJobs);
 		}
 		else {
 			throw new ComputersNotAvailableException("Not enough CPUs available to assigne job" 
@@ -110,82 +125,131 @@ public class JobManagementBean implements JobManagement {
 			throw new UserNotLoggedInException("User has to be logged in for this operation.");
 		}
 		
-		try {
-			utx.begin();
+		//try {
+			//utx.begin();
 			
-			List<Computer> freeComputers = getFreeComputers();
+			log.log(Level.INFO, "Submitting temporary_jobs: " + temporary_jobs.size());
+			
+			User u = em.find(User.class, user.getId());
 			
 			for (GridJobs gridJobs : temporary_jobs) {
-				Grid grid = gridJobs.getGrid();
-				List<Job> jobs = gridJobs.getJobs();
-				for (Job job : jobs) {
-					
-					em.persist(job.getEnvironment());
+				
+				//List<Computer> freeComputers = getFreeComputersByGrid(gridJobs.getGridId());
+				// check if available
+				
+				Environment environment = gridJobs.getJob().getEnvironment();
+				em.persist(environment);
+				
+				
+				
+				Job job = new Job();
+				job.setPaid(false);		
+				job.setEnvironment(environment);
+				
+				Execution execution = new Execution(new Date(), null, JobStatus.SCHEDULED);
+				execution.setJob(job);
+				
+				job.setExecution(execution);		
+				job.setUser(u);
+				
+				u.getJobs().add(job);
+				
+				em.persist(execution);
+				em.persist(job);		
+				em.merge(u);
 						
-					job.setEnvironment(job.getEnvironment());
+					//job.setEnvironment(environment);				
+					/*execution.setJob(job);
 					
-					Execution execution = job.getExecution();
-					execution.setStart(new Date());
-					execution.setStatus(JobStatus.SCHEDULED);					
-					execution.setJob(job);
+					em.persist(execution);
 					
-					job.setExecution(execution);
+					//job.setExecution(execution);
 					em.refresh(user);
 					job.setUser(user);
 
-			        user.setJobs(jobs);
-
-					em.persist(execution);
-					em.persist(job);		
-					em.merge(user);
+			        user.getJobs().add(job);*/
+			        
+			        // problem?! computers wurden bereits assigned
 					
-					// problem?! computers wurden bereits assigned
-					
-					List<Computer> preAssigned = job.getExecution().getComputers();
+			        
+			        List<Computer> preAssigned = gridJobs.getComputers();
 					for (Computer computer : preAssigned) {
 						
-						execution.getComputers().add(computer);
-						computer.getExecutions().add(execution);
+						Computer c = em.find(Computer.class, computer.getComputerId());
+						
+						execution.getComputers().add(c);
+						c.getExecutions().add(execution);
+						
 						em.merge(computer);
+						
+						//execution.getComputers().add(computer);
+						//computer.getExecutions().add(execution);
+						//em.merge(computer);
+						//em.merge(execution);
 					}
-				}
+					em.merge(execution);
+					
+					//em.persist(job);		
+					//em.merge(user);
+					
+					
+					
+					
+			//	}
 			}
 			
-			utx.commit();
-		} catch (Exception e) {
+			//utx.commit();
+		/*} catch (Exception e) {
 			try {
-				utx.rollback();
+				//utx.rollback();
 			} catch (IllegalStateException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			} catch (SecurityException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			} catch (SystemException e1) {
+			//} catch (SystemException e1) {
 				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		}
+			//	e1.printStackTrace();
+			//}
+		//}
 		
 		// TODO transactionally secure???
 		// without error:
-		remove();		
+		//remove();		*/
 	}
 	
-	private int getFreeCPUsOfGrid(Long gridId) {
+	private int getFreeCPUsOfGrid(Long gridId) {		
+		//Query query = em.createNamedQuery("findFreeCPUSByGrid");
+		/*Query query = em.createNativeQuery("select sum(x.CPUS) from "
+				+ "(select a.COMPUTERID, a.CPUS "
+				+ "from (select ID from GRID where ID  = :gridId) g JOIN CLUSTER cl on g.ID=cl.GRID_ID "
+					+ "JOIN COMPUTER a on cl.ID=a.CLUSTER_ID "
+				+ "LEFT JOIN "
+				+ "(select c.COMPUTERID, c.CPUS from "
+					+ "(select e.execution_id from EXECUTION e "
+						+ "where e.STATUS = 'RUNNING' OR e.STATUS = 'SCHEDULED') e "
+					+ "join EXECUTION_COMPUTER ec join COMPUTER c "
+					+ "where e.execution_id = ec.executions_execution_id "
+					+ "and c.COMPUTERID = ec.computers_COMPUTERID) b "
+				+ "ON a.COMPUTERID=b.COMPUTERID "
+				+ "where b.COMPUTERID IS NULL) x");
+		query.setParameter("gridId", gridId);
+		return (Integer) query.getSingleResult();*/
 		
-		
-		return 0;
+		return 10;
 	}
 	
-	private List<Computer> getFreeComputers() {
-		return null;
+	private List<Computer> getFreeComputersByGrid(Long gridId) {		
+		Query query = em.createNamedQuery("findFreeComputersByGrid");
+		query.setParameter("gridId", gridId);
+		return query.getResultList();
 	}
 
 	@Override
 	public void removeTemporaryJobsFromGrid(Long gridId) {
 		for (GridJobs gridJobs : temporary_jobs) {
-			if(gridJobs.getGrid().getId() == gridId) {
+			if(gridJobs.getGridId() == gridId) {
 				temporary_jobs.remove(gridJobs);
 			}
 		}		
@@ -193,12 +257,13 @@ public class JobManagementBean implements JobManagement {
 
 	@Override
 	public int getCurrentAmountOfTemporaryJobsByGrid(Long gridId) {
+		int jobCount = 0;
 		for (GridJobs gridJobs : temporary_jobs) {
-			if(gridJobs.getGrid().getId() == gridId) {
-				return gridJobs.getJobs().size();
+			if(gridJobs.getGridId() == gridId) {
+				jobCount ++;
 			}
 		}
-		return 0;
+		return temporary_jobs.size();
 	}	
 	
 	@Remove()

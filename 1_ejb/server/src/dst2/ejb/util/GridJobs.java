@@ -7,27 +7,36 @@ import dst2.ejb.model.*;
 
 public class GridJobs {
 
-	private Grid grid;
-	private List<Job> jobs;
+	private Long gridId;
+	private Job job;
+	private List<Computer> computers;
 	
-	public GridJobs(Grid grid) {
-		this.grid = grid;
-		this.jobs = new ArrayList<Job>();
+	public GridJobs(Long gridId) {
+		this.gridId = gridId;
+		this.setComputers(new ArrayList<Computer>());
 	}
 
-	public Grid getGrid() {
-		return grid;
+	public Long getGridId() {
+		return gridId;
 	}
 
-	public void setGrid(Grid grid) {
-		this.grid = grid;
+	public void setGrid(Long gridId) {
+		this.gridId = gridId;
 	}
 
-	public List<Job> getJobs() {
-		return jobs;
+	public Job getJob() {
+		return job;
 	}
 
-	public void setJobs(List<Job> jobs) {
-		this.jobs = jobs;
+	public void setJob(Job job) {
+		this.job = job;
+	}
+
+	public void setComputers(List<Computer> computers) {
+		this.computers = computers;
+	}
+
+	public List<Computer> getComputers() {
+		return computers;
 	}
 }

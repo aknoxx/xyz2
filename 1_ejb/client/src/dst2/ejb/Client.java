@@ -78,13 +78,28 @@ public class Client {
 		params.add("param3");
 		
 		try {
-			jobManagement.addJobToGridTemporary(new Long(1), 5, "workflow1", params);
+			jobManagement.addJobToGridTemporary(new Long(1), 5, "workflow2", params);
 		} catch (ComputersNotAvailableException e) {
 			System.out.println("Custom Exception: " + e.getMessage());
 		} catch (InvalidGridIdException e) {
-			e.printStackTrace();
+			System.out.println("Custom Exception: " + e.getMessage());
 		} catch (UserNotLoggedInException e) {
-			e.printStackTrace();
+			System.out.println("Custom Exception: " + e.getMessage());
+		}
+		
+		System.out.println("Request current assigned amount of jobs: <ENTER>");
+		in.nextLine();
+		System.out.println("Jobs assigned to grid 1: " 
+				+ jobManagement.getCurrentAmountOfTemporaryJobsByGrid(new Long(1)));		
+		
+		System.out.println("Successfully submit temporary job list: <ENTER>");
+		in.nextLine();
+		try {
+			jobManagement.submitJobList();
+		} catch (ComputersNotAvailableException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
+		} catch (UserNotLoggedInException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
 		}
 		
         System.out.println("Finish: <ENTER>");

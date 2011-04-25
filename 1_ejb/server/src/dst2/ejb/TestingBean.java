@@ -91,7 +91,8 @@ public class TestingBean implements Testing {
 		Execution execution = new Execution(new Date(start), null, JobStatus.RUNNING);	
 		execution.setJob(job);
 		
-		job.setExecution(execution);		
+		job.setExecution(execution);
+		job.setEnvironment(environment1);
 		job.setUser(user1);
 
         List<Job> jobs = new ArrayList<Job>();
@@ -101,6 +102,15 @@ public class TestingBean implements Testing {
 		em.persist(execution);
 		em.persist(job);		
 		em.merge(user1);
+		
+		
+		// TODO: remove later:
+		Computer computer = em.find(Computer.class, new Long(8));
+		
+		execution.getComputers().add(computer);
+		computer.getExecutions().add(execution);
+		em.merge(execution);
+		em.merge(computer);
 
         System.out.println("All fine");
 	}
