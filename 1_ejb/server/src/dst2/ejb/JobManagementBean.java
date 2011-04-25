@@ -241,9 +241,18 @@ public class JobManagementBean implements JobManagement {
 	}
 	
 	private List<Computer> getFreeComputersByGrid(Long gridId) {		
-		Query query = em.createNamedQuery("findFreeComputersByGrid");
+		Query query = em.createNamedQuery("findAllComputersByGrid");
 		query.setParameter("gridId", gridId);
-		return query.getResultList();
+		List<Computer> allComputersOfGrid = query.getResultList();
+		
+		query = em.createNamedQuery("findUsedComputersByGrid");
+		query.setParameter("statusRunning", JobStatus.RUNNING);
+		query.setParameter("statusScheduled", JobStatus.SCHEDULED);
+		List<Computer> usedComputersOfGrid = query.getResultList();
+		
+		allComputersOfGrid.removeAll(usedComputersOfGrid);
+		
+		return allComputersOfGrid;
 	}
 
 	@Override

@@ -10,19 +10,17 @@ import javax.validation.constraints.*;
 
 @NamedQueries({
 	@NamedQuery(
-			name = "findFreeComputersByGrid",
+			name = "findAllComputersByGrid",
 			query = "select a "
 				+ "from Computer a "
 					+ "where a.cluster.id = (select cl.id from Cluster cl where cl.grid.id=:gridId) "
-				/*+ "LEFT JOIN "
-				+ "(select c.COMPUTERID, c.CPUS, c.CREATION, c.LASTUPDATE, c.LOCATION, c.NAME, c.CLUSTER_ID from "
-					+ "(select e.execution_id from EXECUTION e "
-						+ "where e.STATUS = 'RUNNING' OR e.STATUS = 'SCHEDULED') e "
-					+ "join EXECUTION_COMPUTER ec join COMPUTER c "
-					+ "where e.execution_id = ec.executions_execution_id "
-					+ "and c.COMPUTERID = ec.computers_COMPUTERID) b "
-				+ "ON a.COMPUTERID=b.COMPUTERID "
-				+ "where b.COMPUTERID IS NULL"*/
+			),
+			@NamedQuery(
+					name = "findUsedComputersByGrid",
+					query = "select c from "
+							+ "Execution e "
+							+ "join e.computers c "
+							+ "where (e.status = :statusRunning OR e.status = :statusScheduled) "
 			)
 })
 @Entity
