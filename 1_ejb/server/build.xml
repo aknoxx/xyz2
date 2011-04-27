@@ -51,6 +51,8 @@
             	<include name="dst2/ejb/JobManagement.class"/>
             	<include name="dst2/ejb/JobManagementBean.class"/>
             	
+            	<include name="dst2/ejb/TimerSessionBean.class"/>
+            	
             	<include name="dst2/ejb/util/ComputersNotAvailableException.class"/>
             	<include name="dst2/ejb/util/InvalidGridIdException.class"/>
             	<include name="dst2/ejb/util/UserNotLoggedInException.class"/>

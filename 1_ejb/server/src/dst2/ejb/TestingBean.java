@@ -8,8 +8,6 @@ import java.util.List;
 import javax.ejb.Remove;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.persistence.PersistenceContext;
 
 import dst2.ejb.model.*;

@@ -14,7 +14,13 @@ import javax.persistence.NamedQuery;
 @NamedQueries({
 	@NamedQuery(
 			name = "findPriceSteps",
-			query = "SELECT ps FROM PriceStep ps ORDER BY ps.numberOfHistoricalJobs ASC"
+			query = "SELECT ps FROM PriceStep ps " +
+					"ORDER BY ps.numberOfHistoricalJobs ASC"
+			),
+	@NamedQuery(
+			name = "findPriceStep",
+			query = "SELECT ps FROM PriceStep ps " +
+					"where ps.numberOfHistoricalJobs = :numberOfHistoricalJobs"
 			)
 })
 @Entity

@@ -26,18 +26,17 @@ public class Client {
         try {
 			ctx = new InitialContext();
 		} catch (NamingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		System.out.println("Try to get BEAN: ");
+		System.out.println("Looking up Beans...");
 		
 		try {
 			testing = (Testing)ctx.lookup("java:global/dst2_1/TestingBean!dst2.ejb.Testing");
 			generalManagement = (GeneralManagement)ctx
 					.lookup("java:global/dst2_1/GeneralManagementBean!dst2.ejb.GeneralManagement");
 			jobManagement = (JobManagement)ctx
-			.lookup("java:global/dst2_1/JobManagementBean!dst2.ejb.JobManagement");
+					.lookup("java:global/dst2_1/JobManagementBean!dst2.ejb.JobManagement");
 		} catch (NamingException e) {
 			e.printStackTrace();
 		}
@@ -51,6 +50,8 @@ public class Client {
 		generalManagement.setFeeForNumberOfHistoricalJobs(1, new BigDecimal(30));
 		generalManagement.setFeeForNumberOfHistoricalJobs(5, new BigDecimal(15));
 		generalManagement.setFeeForNumberOfHistoricalJobs(10, new BigDecimal(5));
+		// update step
+		generalManagement.setFeeForNumberOfHistoricalJobs(10, new BigDecimal(7));
         
 		System.out.println("Invalid login: <ENTER>");		
 		in.nextLine();
@@ -61,7 +62,7 @@ public class Client {
 			System.out.println("ERROR");
 		}
 		
-		System.out.println("Valid login: <ENTER>");		
+		System.out.println("Valid login user1: <ENTER>");		
 		in.nextLine();
 		if(jobManagement.login("username1", "password1")) {
 			System.out.println("Ok: Login successfull.");
@@ -78,7 +79,9 @@ public class Client {
 		params.add("param3");
 		
 		try {
-			jobManagement.addJobToGridTemporary(new Long(1), 5, "workflow2", params);
+			jobManagement.addJobToGridTemporary(new Long(1), 1, "workflow2", params);
+			jobManagement.addJobToGridTemporary(new Long(1), 1, "workflow3", params);
+			jobManagement.addJobToGridTemporary(new Long(1), 1, "workflow4", params);
 		} catch (ComputersNotAvailableException e) {
 			System.out.println("Custom Exception: " + e.getMessage());
 		} catch (InvalidGridIdException e) {
@@ -87,7 +90,7 @@ public class Client {
 			System.out.println("Custom Exception: " + e.getMessage());
 		}
 		
-		System.out.println("Request current assigned amount of jobs: <ENTER>");
+		System.out.println("Request current assigned amount of jobs of grid 1: <ENTER>");
 		in.nextLine();
 		System.out.println("Jobs assigned to grid 1: " 
 				+ jobManagement.getCurrentAmountOfTemporaryJobsByGrid(new Long(1)));		
@@ -101,6 +104,100 @@ public class Client {
 		} catch (UserNotLoggedInException e) {
 			System.out.println("Custom Exception: " + e.getMessage());
 		}
+		
+		// Login second user
+		try {
+			jobManagement = (JobManagement)ctx
+					.lookup("java:global/dst2_1/JobManagementBean!dst2.ejb.JobManagement");
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Valid login with user2: <ENTER>");		
+		in.nextLine();
+		if(jobManagement.login("username2", "password2")) {
+			System.out.println("Ok: Login successfull.");
+		}
+		else {
+			System.out.println("ERROR");
+		}
+		
+		System.out.println("Add job assignments to grids (too much for grid 2): <ENTER>");		
+		in.nextLine();
+		try {
+			jobManagement.addJobToGridTemporary(new Long(1), 1, "workflow5", params);
+			
+			// 6 jobs, one too much
+			jobManagement.addJobToGridTemporary(new Long(2), 2, "workflow6", params);
+			jobManagement.addJobToGridTemporary(new Long(2), 4, "workflow7", params);
+			jobManagement.addJobToGridTemporary(new Long(2), 6, "workflow8", params);
+			jobManagement.addJobToGridTemporary(new Long(2), 6, "workflow9", params);
+			jobManagement.addJobToGridTemporary(new Long(2), 6, "workflow10", params);
+			jobManagement.addJobToGridTemporary(new Long(2), 6, "workflow11", params);
+		} catch (ComputersNotAvailableException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
+		} catch (InvalidGridIdException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
+		} catch (UserNotLoggedInException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
+		}
+		
+		System.out.println("Delete job assignments of grid 2: <ENTER>");		
+		in.nextLine();
+		jobManagement.removeTemporaryJobsFromGrid(new Long(2));
+		
+		System.out.println("Request current assigned amount of jobs of grids: <ENTER>");
+		in.nextLine();
+		System.out.println("Jobs assigned to grid 1: " 
+				+ jobManagement.getCurrentAmountOfTemporaryJobsByGrid(new Long(1)));
+		System.out.println("Jobs assigned to grid 2: " 
+				+ jobManagement.getCurrentAmountOfTemporaryJobsByGrid(new Long(2)));	
+		
+		System.out.println("Add jobs another time: <ENTER>");		
+		in.nextLine();
+		try {
+			jobManagement.addJobToGridTemporary(new Long(2), 2, "workflow6", params);
+			jobManagement.addJobToGridTemporary(new Long(2), 4, "workflow7", params);
+			jobManagement.addJobToGridTemporary(new Long(2), 6, "workflow8", params);
+			jobManagement.addJobToGridTemporary(new Long(2), 6, "workflow9", params);
+		} catch (ComputersNotAvailableException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
+		} catch (InvalidGridIdException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
+		} catch (UserNotLoggedInException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
+		}
+		
+		System.out.println("Request current assigned amount of jobs of grids: <ENTER>");
+		in.nextLine();
+		System.out.println("Jobs assigned to grid 1: " 
+				+ jobManagement.getCurrentAmountOfTemporaryJobsByGrid(new Long(1)));
+		System.out.println("Jobs assigned to grid 2: " 
+				+ jobManagement.getCurrentAmountOfTemporaryJobsByGrid(new Long(2)));
+		
+		System.out.println("Successfully submit temporary job list: <ENTER>");
+		in.nextLine();
+		try {
+			jobManagement.submitJobList();
+		} catch (ComputersNotAvailableException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
+		} catch (UserNotLoggedInException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
+		}
+		
+		System.out.println("Waiting 5 seconds...");
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Getting Bill for all jobs: <ENTER>");
+        in.nextLine();
+        System.out.println("User1 with username1:");
+        System.out.println(generalManagement.getTotalBillByUser("username1"));
+        System.out.println("User2 with username2:");
+        System.out.println(generalManagement.getTotalBillByUser("username2"));
 		
         System.out.println("Finish: <ENTER>");
         in.nextLine();

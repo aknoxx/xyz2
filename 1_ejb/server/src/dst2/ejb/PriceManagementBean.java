@@ -63,16 +63,26 @@ public class PriceManagementBean implements PriceManagementLocal {
 	@Lock(WRITE)
 	public void setFeeForNumberOfHistoricalJobs(int numberOfHistoricalJobs, BigDecimal price) {
 		// directly store new values to database
-		// TODO update in-memory data structure!
-		
-		PriceStep priceStep = new PriceStep(numberOfHistoricalJobs, price);
-		
-		//Query q = em.createQuery("SELECT x FROM PriceStep x where x.numberOfHistoricalJobs = :numberOfHistoricalJobs");
-		//q.setParameter(numberOfHistoricalJobs, "numberOfHistoricalJobs");	
-		
-		//if(q.getSingleResult())
-		//this.priceSteps = (List<PriceStep>) q.getResultList();
-		em.persist(priceStep);
-		map.put(priceStep.getNumberOfHistoricalJobs(), priceStep.getPrice());
+		// update in-memory data structure!
+
+		// check if step already exists
+		if(map.containsKey(numberOfHistoricalJobs)) {
+			Query q = em.createNamedQuery("findPriceStep");
+			q.setParameter("numberOfHistoricalJobs", numberOfHistoricalJobs);	
+			PriceStep oldPs = (PriceStep) q.getSingleResult();
+			
+			if(oldPs != null) {
+				PriceStep priceStep = em.find(PriceStep.class, oldPs.getId());
+				priceStep.setPrice(price);
+				em.merge(priceStep);
+				
+				map.put(priceStep.getNumberOfHistoricalJobs(), priceStep.getPrice());
+			}
+		}
+		else {
+			PriceStep priceStep = new PriceStep(numberOfHistoricalJobs, price);
+			em.persist(priceStep);
+			map.put(priceStep.getNumberOfHistoricalJobs(), priceStep.getPrice());
+		}
 	}
 }

@@ -5,23 +5,13 @@ import java.util.List;
 
 import dst2.ejb.model.*;
 
-public class GridJobs {
+public class Jobs {
 
-	private Long gridId;
 	private Job job;
 	private List<Computer> computers;
 	
-	public GridJobs(Long gridId) {
-		this.gridId = gridId;
+	public Jobs(Long gridId) {
 		this.setComputers(new ArrayList<Computer>());
-	}
-
-	public Long getGridId() {
-		return gridId;
-	}
-
-	public void setGrid(Long gridId) {
-		this.gridId = gridId;
 	}
 
 	public Job getJob() {
