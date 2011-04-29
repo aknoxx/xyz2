@@ -15,6 +15,7 @@ import javax.persistence.Query;
 
 import dst2.ejb.model.*;
 
+@Startup // "eager initialization"
 @Singleton
 public class TimerSessionBean {
 	

@@ -9,7 +9,7 @@ import dst2.ejb.util.NoPriceStepException;
 @Local
 public interface PriceManagementLocal {
 
-	public BigDecimal getFeeForNumberOfHistoricalJobs(int numberOfHistoricalJobs) 
+	public BigDecimal getFeeForNumberOfHistoricalJobs(Long numberOfHistoricalJobs) 
 							throws NoPriceStepException;
 	public void setFeeForNumberOfHistoricalJobs(int numberOfHistoricalJobs, BigDecimal price);
 }

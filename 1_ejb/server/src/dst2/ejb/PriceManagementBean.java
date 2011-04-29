@@ -44,7 +44,7 @@ public class PriceManagementBean implements PriceManagementLocal {
 	}
 	
 	@Lock(READ)
-	public BigDecimal getFeeForNumberOfHistoricalJobs(int numberOfHistoricalJobs) 
+	public BigDecimal getFeeForNumberOfHistoricalJobs(Long numberOfHistoricalJobs) 
 						throws NoPriceStepException {
 		if(map.isEmpty()) {
 			throw new NoPriceStepException();

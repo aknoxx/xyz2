@@ -56,6 +56,7 @@
             	<include name="dst2/ejb/util/ComputersNotAvailableException.class"/>
             	<include name="dst2/ejb/util/InvalidGridIdException.class"/>
             	<include name="dst2/ejb/util/UserNotLoggedInException.class"/>
+            	<include name="dst2/ejb/util/NoPriceStepException.class"/>
             </fileset>
         </jar>
     </target>

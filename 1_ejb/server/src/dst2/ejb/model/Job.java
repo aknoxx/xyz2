@@ -5,7 +5,23 @@ import java.util.List;
 
 import javax.persistence.*;
 
-
+@NamedQueries({
+			@NamedQuery(
+					name = "findUnpaidFinishedJobsByUser",
+					query = "select j from "
+							+ "Job j "
+							+ "where j.user.id = (select u.id from User u where u.username = :username) " +
+									"and j.isPaid = false " +
+									"and j.execution.status = :statusFinished"
+			),
+			@NamedQuery(
+					name = "findNumberOfPaidJobsByUser",
+					query = "select count(j) from "
+							+ "Job j "
+							+ "where j.user.id = (select u.id from User u where u.username = :username) " +
+									"and j.isPaid = true "
+			)
+})
 @Entity
 @Table(uniqueConstraints= { @UniqueConstraint(columnNames="environment_id") })
 public class Job implements Serializable {

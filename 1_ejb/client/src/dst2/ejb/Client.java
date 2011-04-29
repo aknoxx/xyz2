@@ -10,6 +10,7 @@ import javax.naming.NamingException;
 
 import dst2.ejb.util.ComputersNotAvailableException;
 import dst2.ejb.util.InvalidGridIdException;
+import dst2.ejb.util.NoPriceStepException;
 import dst2.ejb.util.UserNotLoggedInException;
 
 public class Client {
@@ -185,19 +186,25 @@ public class Client {
 			System.out.println("Custom Exception: " + e.getMessage());
 		}
 		
+		// TODO chang to 5000
 		System.out.println("Waiting 5 seconds...");
 		try {
-			Thread.sleep(5000);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		
 		System.out.println("Getting Bill for all jobs: <ENTER>");
         in.nextLine();
-        System.out.println("User1 with username1:");
-        System.out.println(generalManagement.getTotalBillByUser("username1"));
-        System.out.println("User2 with username2:");
-        System.out.println(generalManagement.getTotalBillByUser("username2"));
+        
+        try {
+        	System.out.println("User1 with username1:");
+			System.out.println(generalManagement.getTotalBillByUser("username1"));
+			System.out.println("User2 with username2:");
+	        System.out.println(generalManagement.getTotalBillByUser("username2"));
+		} catch (NoPriceStepException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
+		}        
 		
         System.out.println("Finish: <ENTER>");
         in.nextLine();

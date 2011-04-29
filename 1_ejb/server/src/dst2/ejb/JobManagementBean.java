@@ -187,7 +187,13 @@ public class JobManagementBean implements JobManagement {
 						job.setPaid(false);		
 						job.setEnvironment(environment);
 						
-						Execution execution = new Execution(new Date(), null, JobStatus.SCHEDULED);
+						// TODO CHANGE TO SCHEDULED!!!!!!!!!!!!!!
+						// end to null !!!
+						
+						Date start = new Date();
+						Date endDate = new Date(start.getTime()+60000);
+						
+						Execution execution = new Execution(start, endDate, JobStatus.FINISHED);
 						execution.setJob(job);
 						
 						job.setExecution(execution);		
