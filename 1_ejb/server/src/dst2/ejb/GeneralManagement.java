@@ -1,6 +1,7 @@
 package dst2.ejb;
 
 import java.math.BigDecimal;
+import java.util.concurrent.Future;
 
 import javax.ejb.Remote;
 
@@ -11,5 +12,5 @@ public interface GeneralManagement {
 
 	public void setFeeForNumberOfHistoricalJobs(int numberOfHistoricalJobs, BigDecimal price);
 	
-	public String getTotalBillByUser(String username) throws NoPriceStepException;
+	public Future<String> getTotalBillByUser(String username) throws NoPriceStepException;
 }

@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -199,11 +201,23 @@ public class Client {
         
         try {
         	System.out.println("User1 with username1:");
-			System.out.println(generalManagement.getTotalBillByUser("username1"));
+        	Future<String> bill = generalManagement.getTotalBillByUser("username1");
+        	while(!bill.isDone()) {
+        		Thread.sleep(1000);
+        	}        	
+			System.out.println(bill.get());
 			System.out.println("User2 with username2:");
-	        System.out.println(generalManagement.getTotalBillByUser("username2"));
+			bill = generalManagement.getTotalBillByUser("username2");
+        	while(!bill.isDone()) {
+        		Thread.sleep(1000);
+        	}       
+        	System.out.println(bill.get());
+		} catch (InterruptedException e) {
+			System.out.println("Error while retrieving bill.");
+		} catch (ExecutionException e) {
+			System.out.println("Error while retrieving bill.");
 		} catch (NoPriceStepException e) {
-			System.out.println("Custom Exception: " + e.getMessage());
+			System.out.println("Custom exception: " + e.getMessage());
 		}        
 		
         System.out.println("Finish: <ENTER>");

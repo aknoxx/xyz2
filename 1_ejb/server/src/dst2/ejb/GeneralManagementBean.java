@@ -2,7 +2,10 @@ package dst2.ejb;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.concurrent.Future;
 
+import javax.ejb.AsyncResult;
+import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -32,8 +35,9 @@ public class GeneralManagementBean implements GeneralManagement {
 		pmb.setFeeForNumberOfHistoricalJobs(numberOfHistoricalJobs, price);
 	}
 
+	@Asynchronous
 	@Override
-	public String getTotalBillByUser(String username) throws NoPriceStepException {
+	public Future<String> getTotalBillByUser(String username) throws NoPriceStepException {
 		
 		// TODO Asynchronously
 		
@@ -117,6 +121,6 @@ public class GeneralManagementBean implements GeneralManagement {
 		sb.append("\n");
 		sb.append("\n");
 		
-		return sb.toString();
+		return new AsyncResult<String>(sb.toString());
 	}
 }
