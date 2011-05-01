@@ -151,11 +151,11 @@ public class JobManagementBean implements JobManagement {
 			User u = em.find(User.class, user.getId());
 			
 			if(!temporary_jobs.isEmpty()) {
-				Iterator iterator = temporary_jobs.keySet().iterator();
+				Iterator<Long> iterator = temporary_jobs.keySet().iterator();
 			    while (iterator.hasNext()) {
 			    	Long gridId = (Long)iterator.next();
 			    	List<Jobs> gj = temporary_jobs.get(gridId);
-			    	
+
 			    	// check if still enough computers available
 					List<Computer> freeComputers = getFreeComputersByGrid(gridId);
 					// needed computers

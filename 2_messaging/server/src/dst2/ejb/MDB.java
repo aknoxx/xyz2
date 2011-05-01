@@ -5,6 +5,7 @@ import javax.ejb.MessageDrivenContext;
 import javax.ejb.ActivationConfigProperty;
 import javax.jms.MessageListener;
 import javax.jms.Message;
+import javax.jms.ObjectMessage;
 import javax.jms.TextMessage;
 import javax.jms.JMSException;
 import javax.persistence.EntityManager;
@@ -12,6 +13,9 @@ import javax.persistence.PersistenceContext;
 import javax.annotation.Resource;
 
 import dst2.ejb.dto.AssignJobDto;
+import dst2.ejb.model.Task;
+import dst2.ejb.model.TaskComplexity;
+import dst2.ejb.model.TaskStatus;
 
 import java.util.logging.Logger;
 
@@ -35,21 +39,37 @@ public class MDB implements MessageListener {
 		AssignJobDto msg = null;
 		TextMessage textMessage = null;
 		
-		
+		ObjectMessage objInMsg = (ObjectMessage)message;
 
         try {
-        	if (message instanceof TextMessage) {
+        	msg = (AssignJobDto) objInMsg.getObject();
+
+            Task task = new Task(msg.jobId, TaskStatus.ASSIGNED, null, TaskComplexity.UNRATED);
+            em.persist(task);
+        	
+        	/*if (message instanceof TextMessage) {
         		textMessage = (TextMessage) message;
+        		
+        		Task task = new Task(new Long(5), TaskStatus.ASSIGNED, null, TaskComplexity.UNRATED);
+                em.persist(task);
+        		
                 logger.info("MESSAGE BEAN: Message received: " + textMessage.getText());
         	}
         	else if (message instanceof AssignJobDto) {
-                msg = (AssignJobDto) message;
-                logger.info("MESSAGE BEAN: Message received: " + msg.jobId);
+        		 msg = message.getObject();
+                 Task task = new Task(msg.jobId, TaskStatus.ASSIGNED, null, TaskComplexity.UNRATED);
+                 em.persist(task);
+                 
+                 // send id to scheduler
+                 
+                 // forward Task to next available cluster
+                 
+                 logger.info("MESSAGE BEAN: Message received: " + msg.jobId);
             } else {
                 logger.warning(
                         "Message of wrong type: "
                         + message.getClass().getName());
-            }
+            }*/
         } catch (Throwable te) {
             te.printStackTrace();
         }		

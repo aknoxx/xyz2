@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="/home/markus/opt/glassfish3/glassfish/lib/javaee.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/markus/xyz2/1_ejb/server/dist/dst2_1.jar"/>
 	<classpathentry kind="src" path="/msg_server"/>
+	<classpathentry kind="lib" path="/home/markus/xyz2/2_messaging/server/dist/dst2_2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

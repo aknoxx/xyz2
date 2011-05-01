@@ -7,53 +7,65 @@ import java.io.InputStreamReader;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Connection;
 import javax.jms.Session;
 import javax.jms.MessageConsumer;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.annotation.Resource;
 
 import dst2.ejb.dto.AssignJobDto;
 
 public class Scheduler {
 
-	@Resource(lookup = "Factory")
     private static ConnectionFactory connectionFactory;
-    @Resource(lookup = "MyQueue")
     private static Queue queue;
     
 	private static BufferedReader stdIn;
 	
 	public static void main(String[] args) {
 	
+		InitialContext ctx = null;
+        try {
+			ctx = new InitialContext();
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			connectionFactory = (ConnectionFactory)ctx.lookup("dst.Factory");
+			queue = (Queue)ctx.lookup("queue.dst.MyQueue");
+		} catch (NamingException e1) {
+			e1.printStackTrace();
+		}
+		
 		//Destination dest = (Destination) queue;
 		Connection connection = null;
         Session session = null;
         MessageProducer messageProducer = null;
         TextMessage message = null;
-		
-		System.out.println("Cheduler: ");
+        
+        ObjectMessage oMsg = null;
 
 		try {
-			System.out.println("Cheduler0: ");
-			connection = connectionFactory.createConnection();
-			System.out.println("Cheduler1: ");
+
+			connection = connectionFactory.createConnection();			
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            System.out.println("Cheduler2: ");
             messageProducer = session.createProducer(queue);
-            System.out.println("Cheduler3: ");
+            oMsg = session.createObjectMessage();
             message = session.createTextMessage();
-            System.out.println("Cheduler4: ");
             
             /*MessageConsumer consumer = session.createConsumer(dest);
             TaskInfoListener listener = new TaskInfoListener();
             consumer.setMessageListener(listener);
             connection.start();*/
             
-            
-            
+            System.out.println("Setup finished, waiting for commands.");
+
             stdIn = new BufferedReader(new InputStreamReader(System.in));
             String command;        
             try {
@@ -63,14 +75,18 @@ public class Scheduler {
     					if (params.length == 2) {
     						Long jobId = Long.parseLong(params[1]);
     						
+    						
     						// advise server to create new task
     						AssignJobDto assignJob = new AssignJobDto(jobId);
     						
-    						for (int i = 0; i < 10; i++) {
+    						oMsg.setObject(assignJob);
+    			            messageProducer.send(oMsg);
+    						
+    						/*for (int i = 0; i < 10; i++) {
     			                message.setText("This is message " + (i + 1));
     			                System.out.println("Sending message: " + message.getText());
     			                messageProducer.send(message);
-    			            }
+    			            }*/
     						
     						// receive taskId
     						System.out.println("TaskId: ");

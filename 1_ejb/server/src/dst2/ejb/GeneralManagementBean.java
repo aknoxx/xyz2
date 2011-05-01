@@ -19,7 +19,7 @@ import dst2.ejb.model.Grid;
 import dst2.ejb.model.Job;
 import dst2.ejb.model.JobStatus;
 import dst2.ejb.model.Membership;
-import dst2.ejb.model.PA;
+import dst2.ejb.model.AuditParameter;
 import dst2.ejb.model.User;
 import dst2.ejb.util.NoPriceStepException;
 
@@ -141,9 +141,9 @@ public class GeneralManagementBean implements GeneralManagement {
 
 		List<AuditDto> auditDtos = new ArrayList<AuditDto>();
 		for (Audit a : audits) {
-			List<PA> parameters = a.getParameters();
+			List<AuditParameter> parameters = a.getParameters();
 			List<ParamDto> paramDtos = new ArrayList<ParamDto>();
-			for (PA p : parameters) {
+			for (AuditParameter p : parameters) {
 				paramDtos.add(new ParamDto(p.getIndex(), p.getClassName(), p.getValue()));
 			}
 			AuditDto auditDto = new AuditDto(a.getInvocationTime(), a.getMethodName(), 

@@ -252,6 +252,6 @@ public class Client {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Client client = new Client(args);
+        new Client(args);
     }
 }

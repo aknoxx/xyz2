@@ -11,7 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import dst2.ejb.model.Audit;
-import dst2.ejb.model.PA;
+import dst2.ejb.model.AuditParameter;
 
 public class AuditInterceptor {
 	
@@ -51,14 +51,14 @@ public class AuditInterceptor {
     private void persistAudit(InvocationContext ctx, String resultValue) {
     	Object[] params = ctx.getParameters();
         
-        List<PA> parameters = new ArrayList<PA>();
+        List<AuditParameter> parameters = new ArrayList<AuditParameter>();
         
         Audit audit = new Audit(new Date(), ctx.getMethod().getName(), resultValue);
     	em.persist(audit);
         if(params != null) {
         	
         	for (int i = 0; i < params.length; i++) {
-            	PA p = new PA(i, params[i].getClass().getName(), params[i].toString());
+            	AuditParameter p = new AuditParameter(i, params[i].getClass().getName(), params[i].toString());
             	p.setAudit(audit);
             	parameters.add(p);
             	em.persist(p);            	

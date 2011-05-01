@@ -1,22 +1,18 @@
 package dst2.ejb.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -43,7 +39,7 @@ public class Audit implements Serializable {
 	private String methodName;
 	@OneToMany(mappedBy="audit")
 	@JoinColumn(nullable=true)
-	private List<PA> parameters;
+	private List<AuditParameter> parameters;
 	@Column(nullable=false)
 	private String resultValue; // or exceptionValue
 	
@@ -91,11 +87,11 @@ public class Audit implements Serializable {
 		this.resultValue = resultValue;
 	}
 
-	public void setParameters(List<PA> parameters) {
+	public void setParameters(List<AuditParameter> parameters) {
 		this.parameters = parameters;
 	}
 
-	public List<PA> getParameters() {
+	public List<AuditParameter> getParameters() {
 		return parameters;
 	}
 }

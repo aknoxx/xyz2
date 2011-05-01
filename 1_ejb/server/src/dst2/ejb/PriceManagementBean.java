@@ -50,7 +50,7 @@ public class PriceManagementBean implements PriceManagementLocal {
 			throw new NoPriceStepException();
 		}
 		
-		Iterator iterator = map.keySet().iterator();
+		Iterator<Integer> iterator = map.keySet().iterator();
 	    while (iterator.hasNext()) {
 	    	Integer key = (Integer)iterator.next();
 	    	if(numberOfHistoricalJobs < (int) key) {
