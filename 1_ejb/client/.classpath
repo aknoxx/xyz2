@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/markus/dst2_0726649/1_ejb/server/dist/dst2_1.jar"/>
+	<classpathentry kind="lib" path="/home/markus/xyz2/1_ejb/server/dist/dst2_1.jar"/>
+	<classpathentry kind="src" path="/server"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

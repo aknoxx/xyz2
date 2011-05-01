@@ -8,6 +8,8 @@
 	<property name="build.dir" value="build" />
 	<property name="lib.dir" value="../../lib" />
 	<property name="clientJarfile.name" value="dst2_2_client.jar" />
+	
+	<property name="endorsed.dir" value="${glassfish.home}/modules/endorsed" />
 
 	<path id="classpath">
 		<fileset dir="${glassfish.home}/lib">
@@ -28,12 +30,14 @@
 
 	<target name="compile" depends="check">
 		<mkdir dir="${build.dir}" />
-		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="on" deprecation="on" classpathref="classpath" />
+		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="on" deprecation="on" classpathref="classpath">
+		      <compilerarg value="-Djava.endorsed.dirs=${endorsed.dir}"/>
+		</javac>
 	</target>
 
 	<!-- set your main class -->
 	<target name="run" depends="compile">
-		<java classname="your.main.class" fork="true" classpathref="classpath" />
+		<java classname="dst2.ejb.Scheduler" fork="true" classpathref="classpath" />
 	</target>
 
 	<target name="clean">

@@ -1,6 +1,7 @@
 package dst2.ejb;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -12,11 +13,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import dst2.ejb.model.Computer;
+import dst2.ejb.dto.*;
+import dst2.ejb.model.Audit;
 import dst2.ejb.model.Grid;
 import dst2.ejb.model.Job;
 import dst2.ejb.model.JobStatus;
 import dst2.ejb.model.Membership;
+import dst2.ejb.model.PA;
 import dst2.ejb.model.User;
 import dst2.ejb.util.NoPriceStepException;
 
@@ -38,8 +41,6 @@ public class GeneralManagementBean implements GeneralManagement {
 	@Asynchronous
 	@Override
 	public Future<String> getTotalBillByUser(String username) throws NoPriceStepException {
-		
-		// TODO Asynchronously
 		
 		Query query = em.createNamedQuery("findUserByName");
 		query.setParameter("username", username);		
@@ -63,6 +64,7 @@ public class GeneralManagementBean implements GeneralManagement {
 			
 			Grid gridOfJob = job.getExecution().getComputers().get(0)
 									.getCluster().getGrid();
+			BigDecimal jobPrice = new BigDecimal(0);
 			
 			sb.append("\n");
 			sb.append(" " + jobNumber + ". Job: ");
@@ -72,34 +74,40 @@ public class GeneralManagementBean implements GeneralManagement {
 			query.setParameter("username", username);
 			Long numberOfPaidJobs = (Long) query.getSingleResult();
 			
-			BigDecimal staticFee = pmb.getFeeForNumberOfHistoricalJobs(numberOfPaidJobs);
+			BigDecimal staticFee = pmb.getFeeForNumberOfHistoricalJobs(numberOfPaidJobs);		
 			
-			double discount = 1;
+			jobPrice = jobPrice.add(staticFee);
+			sb.append(staticFee);
+			
+			sb.append("\n");
+			sb.append("  Execution costs: ");
+			BigDecimal costsPerCPUSecond = gridOfJob.getCostPerCPUMinute();//.divide(new BigDecimal(60));
+			
+			int executionTimeInSeconds = job.getExecutionTime();
+			
+			BigDecimal executionCosts = 
+				new BigDecimal(executionTimeInSeconds)
+					.multiply(costsPerCPUSecond)
+					.multiply(new BigDecimal(job.getNumCPUs()))
+					.divide(new BigDecimal(60))
+					.setScale(2, BigDecimal.ROUND_HALF_UP);
+			
+			jobPrice = jobPrice.add(executionCosts);
+			sb.append(executionCosts);
+			
+			double discount = 0; // discount 0%
 			for (Membership membership : user.getMemberships()) {
 				if(membership.getGrid().getId() == gridOfJob.getId()) {
 					discount = membership.getDiscount();
 					break;
 				}
-			}			
-			
-			// TODO round
-			staticFee = staticFee.multiply(new BigDecimal(discount));
-			totalPrice.add(staticFee);
-			sb.append(staticFee);
+			}
 			
 			sb.append("\n");
-			sb.append("  Execution costs: ");
-			BigDecimal costsPerCPUMinute = gridOfJob.getCostPerCPUMinute();
-			
-			int executionTimeInSeconds = job.getExecutionTime();
-			
-			BigDecimal executionCosts = 
-				new BigDecimal(executionTimeInSeconds).divide(new BigDecimal(60))
-					.multiply(costsPerCPUMinute)
-					.multiply(new BigDecimal(job.getNumCPUs()));
-			
-			totalPrice.add(executionCosts);
-			sb.append(executionCosts);
+			sb.append("  Discount: ");
+			BigDecimal dc = jobPrice.multiply(new BigDecimal(discount)).setScale(2, BigDecimal.ROUND_HALF_UP);
+			jobPrice = jobPrice.subtract(dc);
+			sb.append("-" + dc);			
 			
 			sb.append("\n");
 			sb.append("  Number of computers: ");
@@ -110,6 +118,7 @@ public class GeneralManagementBean implements GeneralManagement {
 			paidJob.setPaid(true);
 			em.merge(paidJob);
 			
+			totalPrice = totalPrice.add(jobPrice);
 			jobNumber++;
 		}		
 		
@@ -122,5 +131,25 @@ public class GeneralManagementBean implements GeneralManagement {
 		sb.append("\n");
 		
 		return new AsyncResult<String>(sb.toString());
+	}
+
+	@Override
+	public AuditListDto getAudits() {
+		
+		Query query = em.createNamedQuery("findAllAudits");
+		List<Audit> audits = query.getResultList();
+
+		List<AuditDto> auditDtos = new ArrayList<AuditDto>();
+		for (Audit a : audits) {
+			List<PA> parameters = a.getParameters();
+			List<ParamDto> paramDtos = new ArrayList<ParamDto>();
+			for (PA p : parameters) {
+				paramDtos.add(new ParamDto(p.getIndex(), p.getClassName(), p.getValue()));
+			}
+			AuditDto auditDto = new AuditDto(a.getInvocationTime(), a.getMethodName(), 
+					paramDtos, a.getResultValue());
+			auditDtos.add(auditDto);
+		}	
+		return new AuditListDto(auditDtos);		
 	}
 }

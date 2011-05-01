@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.ejb.Remove;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -33,8 +32,8 @@ public class TestingBean implements Testing {
 		em.persist(user1);
 		em.persist(user2);		
 		
-		Membership mem1 = user1.addGrid(grid1, new Date(), 0.8);
-		Membership mem2 = user2.addGrid(grid2, new Date(), 0.6);
+		Membership mem1 = user1.addGrid(grid1, new Date(), 0.2);
+		Membership mem2 = user2.addGrid(grid2, new Date(), 0.4);
 		em.persist(mem1);
 		em.persist(mem2);
 		
@@ -101,8 +100,6 @@ public class TestingBean implements Testing {
 		em.persist(job);		
 		em.merge(user1);
 		
-		
-		// TODO: remove later:
 		Computer computer = em.find(Computer.class, new Long(8));
 		
 		execution.getComputers().add(computer);
@@ -112,9 +109,9 @@ public class TestingBean implements Testing {
 
         System.out.println("All fine");
 	}
-	
-	@Remove()
-    public void remove() {
-        //em = null;
-    }
+
+	@Override
+	public void remove() {
+		em = null;		
+	}
 }

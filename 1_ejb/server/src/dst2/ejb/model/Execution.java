@@ -10,7 +10,7 @@ import javax.persistence.*;
 @NamedQueries({
 	@NamedQuery(
 			name = "findExecutionsByStatus",
-			query = "SELECT e FROM Execution e WHERE e.status = :status"
+			query = "SELECT e FROM Execution e WHERE e.status = :status "
 			)
 })
 @Entity

@@ -53,7 +53,14 @@
             	
             	<include name="dst2/ejb/TimerSessionBean.class"/>
             	
+            	<include name="dst2/ejb/interceptor/AuditInterceptor.class"/>
+            	
+            	<include name="dst2/ejb/dto/AuditDto.class"/>
+            	<include name="dst2/ejb/dto/AuditListDto.class"/>
+            	<include name="dst2/ejb/dto/ParamDto.class"/>
+            	
             	<include name="dst2/ejb/util/ComputersNotAvailableException.class"/>
+            	<include name="dst2/ejb/util/ComputersNotAvailableTemporaryException.class"/>
             	<include name="dst2/ejb/util/InvalidGridIdException.class"/>
             	<include name="dst2/ejb/util/UserNotLoggedInException.class"/>
             	<include name="dst2/ejb/util/NoPriceStepException.class"/>

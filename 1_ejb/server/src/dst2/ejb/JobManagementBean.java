@@ -11,10 +11,12 @@ import java.util.logging.Logger;
 
 import javax.ejb.Remove;
 import javax.ejb.Stateful;
+import javax.interceptor.Interceptors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import dst2.ejb.interceptor.AuditInterceptor;
 import dst2.ejb.model.*;
 import dst2.ejb.util.*;
 
@@ -24,15 +26,13 @@ public class JobManagementBean implements JobManagement {
 	@PersistenceContext
 	private EntityManager em;
 	
-	//@Resource
-	//UserTransaction utx;
-	
 	private Map<Long, List<Jobs>> temporary_jobs = new HashMap<Long, List<Jobs>>();
 	private Map<Long, List<Computer>> freeComputersPerGrid = new HashMap<Long, List<Computer>>();
 	private User user;
 	
 	private static Logger log = Logger.getLogger("MyLog");
 
+	@Interceptors(AuditInterceptor.class)
 	@Override
 	public boolean login(String username, String password) {
 		Query query = em.createNamedQuery("findUserByName");
@@ -54,9 +54,10 @@ public class JobManagementBean implements JobManagement {
 		return false;
 	}
 
+	@Interceptors(AuditInterceptor.class)
 	@Override
 	public void addJobToGridTemporary(Long gridId, int numCPUs, String workflow,
-			List<String> params) throws ComputersNotAvailableException, 
+			List<String> params) throws ComputersNotAvailableTemporaryException, 
 										InvalidGridIdException, UserNotLoggedInException {
 		
 		// check if enough computers for the grid: sumCPUs of free computers >= numCPUs
@@ -84,7 +85,7 @@ public class JobManagementBean implements JobManagement {
 			
 			Job job = new Job(false, 
 					new Environment(workflow, params),
-					null,
+					new Execution(new Date(), null, JobStatus.SCHEDULED),
 					null);			
 			
 			Jobs gridJobs = new Jobs(gridId);
@@ -126,7 +127,7 @@ public class JobManagementBean implements JobManagement {
 		}
 		else {
 			log("NOT Enough CPUs: " + freeCPUs + " >= " + numCPUs);
-			throw new ComputersNotAvailableException("Not enough CPUs available to assigne job" 
+			throw new ComputersNotAvailableTemporaryException("Not enough CPUs available to assigne job" 
 					+ " with workflow " + workflow + " to grid " + gridId);
 		}		
 	}
@@ -135,6 +136,7 @@ public class JobManagementBean implements JobManagement {
 		log.log(Level.INFO, msg);
 	}
 	
+	@Interceptors(AuditInterceptor.class)
 	@Override
 	public void submitJobList() throws UserNotLoggedInException, ComputersNotAvailableException {
 		
@@ -143,10 +145,7 @@ public class JobManagementBean implements JobManagement {
 		if(user == null) {
 			throw new UserNotLoggedInException("User has to be logged in for this operation.");
 		}
-		
-		//try {
-			//utx.begin();
-			
+
 			log("Submitting temporary_jobs: " + temporary_jobs.size());
 			
 			User u = em.find(User.class, user.getId());
@@ -187,13 +186,7 @@ public class JobManagementBean implements JobManagement {
 						job.setPaid(false);		
 						job.setEnvironment(environment);
 						
-						// TODO CHANGE TO SCHEDULED!!!!!!!!!!!!!!
-						// end to null !!!
-						
-						Date start = new Date();
-						Date endDate = new Date(start.getTime()+60000);
-						
-						Execution execution = new Execution(start, endDate, JobStatus.FINISHED);
+						Execution execution = new Execution(new Date(), null, JobStatus.SCHEDULED);
 						execution.setJob(job);
 						
 						job.setExecution(execution);		
@@ -216,29 +209,10 @@ public class JobManagementBean implements JobManagement {
 								em.merge(computer);
 							}
 							em.merge(execution);
-							
-					//	}
 					}
 			    }
 			}
-			//utx.commit();
-		/*} catch (Exception e) {
-			try {
-				//utx.rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			//} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-			//	e1.printStackTrace();
-			//}
-		//}
-		
-		// TODO transactionally secure???
-		// without error:*/
+
 		remove();
 	}
 	
@@ -265,6 +239,7 @@ public class JobManagementBean implements JobManagement {
 		return allComputersOfGrid;
 	}
 
+	@Interceptors(AuditInterceptor.class)
 	@Override
 	public void removeTemporaryJobsFromGrid(Long gridId) {
 		if(!temporary_jobs.isEmpty()) {
@@ -276,6 +251,7 @@ public class JobManagementBean implements JobManagement {
 		freeComputersPerGrid.remove(gridId);
 	}
 
+	@Interceptors(AuditInterceptor.class)
 	@Override
 	public int getCurrentAmountOfTemporaryJobsByGrid(Long gridId) {
 		if(!temporary_jobs.isEmpty()) {

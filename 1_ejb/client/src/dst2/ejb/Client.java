@@ -10,10 +10,8 @@ import java.util.concurrent.Future;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import dst2.ejb.util.ComputersNotAvailableException;
-import dst2.ejb.util.InvalidGridIdException;
-import dst2.ejb.util.NoPriceStepException;
-import dst2.ejb.util.UserNotLoggedInException;
+import dst2.ejb.util.*;
+import dst2.ejb.dto.*;
 
 public class Client {
 	
@@ -85,11 +83,11 @@ public class Client {
 			jobManagement.addJobToGridTemporary(new Long(1), 1, "workflow2", params);
 			jobManagement.addJobToGridTemporary(new Long(1), 1, "workflow3", params);
 			jobManagement.addJobToGridTemporary(new Long(1), 1, "workflow4", params);
-		} catch (ComputersNotAvailableException e) {
-			System.out.println("Custom Exception: " + e.getMessage());
 		} catch (InvalidGridIdException e) {
 			System.out.println("Custom Exception: " + e.getMessage());
 		} catch (UserNotLoggedInException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
+		} catch (ComputersNotAvailableTemporaryException e) {
 			System.out.println("Custom Exception: " + e.getMessage());
 		}
 		
@@ -137,11 +135,11 @@ public class Client {
 			jobManagement.addJobToGridTemporary(new Long(2), 6, "workflow9", params);
 			jobManagement.addJobToGridTemporary(new Long(2), 6, "workflow10", params);
 			jobManagement.addJobToGridTemporary(new Long(2), 6, "workflow11", params);
-		} catch (ComputersNotAvailableException e) {
-			System.out.println("Custom Exception: " + e.getMessage());
 		} catch (InvalidGridIdException e) {
 			System.out.println("Custom Exception: " + e.getMessage());
 		} catch (UserNotLoggedInException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
+		} catch (ComputersNotAvailableTemporaryException e) {
 			System.out.println("Custom Exception: " + e.getMessage());
 		}
 		
@@ -163,11 +161,11 @@ public class Client {
 			jobManagement.addJobToGridTemporary(new Long(2), 4, "workflow7", params);
 			jobManagement.addJobToGridTemporary(new Long(2), 6, "workflow8", params);
 			jobManagement.addJobToGridTemporary(new Long(2), 6, "workflow9", params);
-		} catch (ComputersNotAvailableException e) {
-			System.out.println("Custom Exception: " + e.getMessage());
 		} catch (InvalidGridIdException e) {
 			System.out.println("Custom Exception: " + e.getMessage());
 		} catch (UserNotLoggedInException e) {
+			System.out.println("Custom Exception: " + e.getMessage());
+		} catch (ComputersNotAvailableTemporaryException e) {
 			System.out.println("Custom Exception: " + e.getMessage());
 		}
 		
@@ -188,10 +186,9 @@ public class Client {
 			System.out.println("Custom Exception: " + e.getMessage());
 		}
 		
-		// TODO chang to 5000
-		System.out.println("Waiting 5 seconds...");
+		System.out.println("Waiting 3 seconds for timer to complete executions...");
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(3000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -202,29 +199,53 @@ public class Client {
         try {
         	System.out.println("User1 with username1:");
         	Future<String> bill = generalManagement.getTotalBillByUser("username1");
-        	while(!bill.isDone()) {
+        	/*while(!bill.isDone()) { // glassfish bug
         		Thread.sleep(1000);
-        	}        	
+        	}*/
+        	Thread.sleep(1000);
 			System.out.println(bill.get());
 			System.out.println("User2 with username2:");
 			bill = generalManagement.getTotalBillByUser("username2");
-        	while(!bill.isDone()) {
+        	/*while(!bill.isDone()) { // glassfish bug
         		Thread.sleep(1000);
-        	}       
+        	}*/
+			Thread.sleep(1000);
         	System.out.println(bill.get());
 		} catch (InterruptedException e) {
-			System.out.println("Error while retrieving bill.");
+			System.out.println("Error while retrieving bill." + e.getMessage());
+			e.printStackTrace();
 		} catch (ExecutionException e) {
-			System.out.println("Error while retrieving bill.");
+			System.out.println("Error while retrieving bill." + e.getMessage());
+			e.printStackTrace();
 		} catch (NoPriceStepException e) {
 			System.out.println("Custom exception: " + e.getMessage());
 		}        
 		
-        System.out.println("Finish: <ENTER>");
+        System.out.println("Get all saved audits: <ENTER>");
         in.nextLine();
-        testing.remove();
+        AuditListDto audits = generalManagement.getAudits();
+        int i = 1;
+        StringBuilder sb = new StringBuilder();
+        for (AuditDto a : audits.audits) {
+			sb.append(i+ ". ");
+			sb.append(a.invocationTime + ", ");
+			sb.append(a.methodName + ", ");			
+			sb.append(a.resultValue);
+			sb.append("\n   Params: \n");
+			
+			for (ParamDto p : a.parameters) {
+				sb.append("   " + p.paramIndex + ", ");
+				sb.append(p.className + ", ");
+				sb.append(p.value + ", ");
+				sb.append("\n");
+			}
+			sb.append("\n");			
+			
+			i++;
+		}
+        System.out.println(sb.toString());
         
-        System.out.println("Client: all fine.");
+        testing.remove();
     }
 
     /**

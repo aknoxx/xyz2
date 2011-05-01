@@ -11,7 +11,7 @@ public interface JobManagement {
 
 	public boolean login(String username, String password);
 	public void addJobToGridTemporary(Long gridId, int numCPUs, String workflow, List<String> params) 
-					throws ComputersNotAvailableException, 
+					throws ComputersNotAvailableTemporaryException, 
 					InvalidGridIdException, UserNotLoggedInException;
 	public void submitJobList() throws ComputersNotAvailableException,
 										UserNotLoggedInException;
