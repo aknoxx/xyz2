@@ -54,7 +54,8 @@
             <fileset dir="${build.dir}">
                 <!-- set the classes to be included for your clients.-->
             	<include name="dst2/ejb/dto/AssignJobDto.class"/>
-                <include name="dst2/ejb/dto/TaskDto.class"/>            	
+                <include name="dst2/ejb/dto/TaskDto.class"/>  
+            	<include name="dst2/ejb/dto/TaskIdDto.class"/>  
             </fileset>
         </jar>
     </target>
